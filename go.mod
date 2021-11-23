@@ -8,6 +8,7 @@ require (
 	github.com/jackskj/carta v0.2.0
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/mattn/go-sqlite3 v1.14.9
+	github.com/rakyll/statik v0.1.7
 )
 
 require (

@@ -1,21 +1,24 @@
 package database
 
+//go:generate statik -src=./ -include=*.sql
+
 import (
 	"fmt"
 	"game-stats-api/pkg/datetime"
 	"game-stats-api/pkg/game"
 	"game-stats-api/pkg/player"
+	"io/ioutil"
 	"log"
-	"os"
 
 	"github.com/jackskj/carta"
 	"github.com/jmoiron/sqlx"
 	"github.com/mattn/go-sqlite3"
+	"github.com/rakyll/statik/fs"
+
+	_ "game-stats-api/pkg/database/statik"
 )
 
 var db *sqlx.DB
-
-const schemaPath = "pkg/database/schema.sql"
 
 const (
 	allGamesQuery = `
@@ -46,16 +49,30 @@ func Initialize(databasePath string) error {
 	if err != nil {
 		return err
 	}
-	createTables()
+	err = createTables()
+	if err != nil {
+		return err
+	}
 	return db.Ping()
 }
 
-func createTables() {
-	schema, err := os.ReadFile(schemaPath)
+func createTables() error {
+	statikFS, err := fs.New()
 	if err != nil {
-		log.Println(err)
+		return err
 	}
-	db.MustExec(string(schema))
+	r, err := statikFS.Open("/schema.sql")
+	if err != nil {
+		return err
+	}
+	defer r.Close()
+	schema, err := ioutil.ReadAll(r)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(string(schema))
+	return err
 }
 
 func getPlayerId(name string) (int64, error) {
@@ -87,16 +104,23 @@ func createGamePlayerTx(tx *sqlx.Tx, gameId int, player *player.Player) (int, er
 		if sqlite3.ErrNoExtended(err.(sqlite3.Error).ExtendedCode) == sqlite3.ErrConstraintUnique {
 			playerId, err = getPlayerId(player.GetName())
 			if err != nil {
-				log.Println(err)
-				return 0, fmt.Errorf("failed to create a new player")
+				return 0, err
 			}
+		} else {
+			return 0, err
 		}
 	} else {
 		playerId, _ = res.LastInsertId()
 	}
-	tx.MustExec("INSERT INTO players_games(player_id, game_id) VALUES (?, ?)", playerId, gameId)
+	_, err = tx.Exec("INSERT INTO players_games(player_id, game_id) VALUES (?, ?)", playerId, gameId)
+	if err != nil {
+		return 0, err
+	}
 	for _, date := range player.GetStats() {
-		tx.MustExec("INSERT INTO stats(player_id, game_id, date) VALUES (?, ?, ?)", playerId, gameId, date.GetDate())
+		_, err = tx.Exec("INSERT INTO stats(player_id, game_id, date) VALUES (?, ?, ?)", playerId, gameId, date.GetDate())
+		if err != nil {
+			return 0, err
+		}
 	}
 	return int(playerId), err
 }
@@ -105,6 +129,7 @@ func CreateGamePlayer(gameId int, player *player.Player) (int, error) {
 	tx := db.MustBegin()
 	id, err := createGamePlayerTx(tx, gameId, player)
 	if err != nil {
+		log.Println(err)
 		tx.Rollback()
 		return 0, err
 	}
@@ -113,20 +138,26 @@ func CreateGamePlayer(gameId int, player *player.Player) (int, error) {
 }
 
 func CreateGame(g *game.Game) (int, error) {
+	var gameId int64
 	tx := db.MustBegin()
-	res := tx.MustExec("INSERT INTO games(name, description) VALUES (?, ?)", g.GetName(), g.GetDescription())
-	gameId, _ := res.LastInsertId()
+	res, err := tx.Exec("INSERT INTO games(name, description) VALUES (?, ?)", g.GetName(), g.GetDescription())
+	if err != nil {
+		goto Err
+	}
+	gameId, _ = res.LastInsertId()
 	for _, player := range g.GetPlayers() {
 		_, err := createGamePlayerTx(tx, int(gameId), player)
 		if err != nil {
-			tx.Rollback()
-			return 0, err
+			goto Err
 		}
 	}
-	err := tx.Commit()
+	err = tx.Commit()
 	return int(gameId), err
+Err:
+	log.Println(err)
+	tx.Rollback()
+	return 0, err
 }
-
 
 func DeleteGamePlayerLastStat(gameId int, playerId int) error {
 	const query = `
@@ -137,7 +168,7 @@ order by date desc limit 1
 )
 `
 	tx := db.MustBegin()
-	tx.MustExec(query, gameId, playerId)
+	tx.Exec(query, gameId, playerId)
 	return tx.Commit()
 }
 
@@ -149,9 +180,9 @@ func DeleteGamePlayer(gameId int, playerId int) error {
 	for _, player := range game.GetPlayers() {
 		if player.GetId() == playerId {
 			tx := db.MustBegin()
-			tx.MustExec("DELETE FROM players_games WHERE game_id = (?) and player_id = (?)", gameId, playerId)
-			tx.MustExec("DELETE FROM stats WHERE game_id = (?) and player_id = (?)", gameId, playerId)
-			tx.MustExec(deleteOrphanPlayers)
+			tx.Exec("DELETE FROM players_games WHERE game_id = (?) and player_id = (?)", gameId, playerId)
+			tx.Exec("DELETE FROM stats WHERE game_id = (?) and player_id = (?)", gameId, playerId)
+			tx.Exec(deleteOrphanPlayers)
 			err = tx.Commit()
 			return err
 		}
@@ -165,10 +196,10 @@ func DeleteGame(id int) error {
 		return err
 	}
 	tx := db.MustBegin()
-	tx.MustExec("DELETE FROM games WHERE id = (?)", id)
-	tx.MustExec("DELETE FROM players_games WHERE game_id = (?)", id)
-	tx.MustExec("DELETE FROM stats WHERE game_id = (?)", id)
-	tx.MustExec(deleteOrphanPlayers)
+	tx.Exec("DELETE FROM games WHERE id = (?)", id)
+	tx.Exec("DELETE FROM players_games WHERE game_id = (?)", id)
+	tx.Exec("DELETE FROM stats WHERE game_id = (?)", id)
+	tx.Exec(deleteOrphanPlayers)
 	err = tx.Commit()
 	return err
 }

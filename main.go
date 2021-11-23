@@ -5,43 +5,19 @@ import (
 	"game-stats-api/pkg/server"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/gorilla/mux"
 )
 
-func checkErr(err error) {
-	if err != nil {
-		log.Println(err)
-	}
-}
-
 func main() {
 	err := database.Initialize("data.db")
-	checkErr(err)
-
-	//now := time.Now()
-	//g := game.New("Monopoly")
-	//g.SetDescription("Monopoly Deal game at Sagemcom")
-	//p, _ := g.AddPlayer("Yannick")
-	//p.AddStat(datetime.New(now))
-	//p.AddStat(datetime.New(now.Add(time.Second)))
-	//p, _ = g.AddPlayer("John")
-	//p.AddStat(datetime.New(now.Add(2*time.Second)))
-	//p, _ = g.AddPlayer("Davy")
-	//p.AddStat(datetime.New(now.Add(3*time.Second)))
-	//_, err = database.CreateGame(g)
-	//checkErr(err)
-
-	//g2 := game.New("Tarot")
-	//p, _ = g2.AddPlayer("Patrice")
-	//g2.AddPlayer("Yannick")
-	//g2.AddPlayer("John")
-	//g2.AddPlayer("Davy")
-	//p.AddStat(datetime.New(now.Add(4*time.Second)))
-	//_, err = database.CreateGame(g2)
-	//checkErr(err)
+	if err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
 
 	router := mux.NewRouter()
 	router.StrictSlash(true)
