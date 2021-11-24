@@ -6,10 +6,10 @@ import (
 )
 
 type Game struct {
-	Id          int    `db:"game_id"`
-	Name        string `db:"game_name"`
-	Description string `db:"game_description"`
-	Players     []*player.Player
+	Id          int              `db:"game_id" json:"id"`
+	Name        string           `db:"game_name" json:"name"`
+	Description string           `db:"game_description" json:"description"`
+	Players     []*player.Player `json:"players"`
 }
 
 func New(name string) *Game {

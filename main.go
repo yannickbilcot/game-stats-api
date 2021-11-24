@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/middleware"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -34,7 +35,7 @@ func main() {
 	log.Println("Listening...")
 
 	srv := &http.Server{
-		Handler:      router,
+		Handler:      handlers.CORS()(router),
 		Addr:         "127.0.0.1:3000",
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
