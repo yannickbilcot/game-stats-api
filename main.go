@@ -32,11 +32,13 @@ func main() {
 	router.HandleFunc("/games/{gid:[0-9]+}/players/{pid:[0-9]+}/laststat/", server.DeleteGamePlayerLastStatHandler).Methods("DELETE")
 	router.Use(middleware.Logger)
 	router.Use(middleware.AllowContentEncoding("application/json"))
-	allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "DELETE"})
+	allowedHeaders := handlers.AllowedHeaders([]string{"X-Requested-With","content-type"})
+	allowedOrigins := handlers.AllowedOrigins([]string{"*"})
+	allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "OPTIONS"})
 	log.Println("Listening...")
 
 	srv := &http.Server{
-		Handler:      handlers.CORS(allowedMethods)(router),
+		Handler:      handlers.CORS(allowedOrigins, allowedHeaders, allowedMethods)(router),
 		Addr:         "127.0.0.1:3000",
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
