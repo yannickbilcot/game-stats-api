@@ -9,7 +9,7 @@ type Game struct {
 	Id          int              `db:"game_id" json:"id"`
 	Name        string           `db:"game_name" json:"name"`
 	Description string           `db:"game_description" json:"description"`
-	Players     []*player.Player `json:"players"`
+	Players     []*player.Player `json:"players,omitempty"`
 }
 
 func New(name string) *Game {

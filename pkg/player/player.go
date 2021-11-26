@@ -6,9 +6,9 @@ import (
 )
 
 type Player struct {
-	Id    *int                 `db:"player_id" json:"id"`
-	Name  *string              `db:"player_name" json:"name"`
-	Stats []*datetime.DateTime `json:"stats"`
+	Id    *int                 `db:"player_id" json:"id,omitempty"`
+	Name  *string              `db:"player_name" json:"name,omitempty"`
+	Stats []*datetime.DateTime `json:"stats,omitempty"`
 }
 
 func New(name string) *Player {
