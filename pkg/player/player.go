@@ -17,10 +17,16 @@ func New(name string) *Player {
 }
 
 func (p *Player) GetId() int {
+	if p.Id == nil {
+		return 0
+	}
 	return *p.Id
 }
 
 func (p *Player) GetName() string {
+	if p.Name == nil {
+		return ""
+	}
 	return *p.Name
 }
 
