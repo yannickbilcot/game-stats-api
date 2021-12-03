@@ -45,9 +45,8 @@ delete from players where id in (
 `
 )
 
-func Initialize(databasePath string) error {
+func Initialize(connStr string) error {
 	var err error
-	connStr := "user=g603274 password=postgres dbname=postgres sslmode=require"
 	db, err = sqlx.Open("postgres", connStr)
 	if err != nil {
 		return err

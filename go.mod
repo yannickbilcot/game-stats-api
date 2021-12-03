@@ -23,7 +23,9 @@ require (
 	github.com/jcmturner/goidentity/v6 v6.0.1 // indirect
 	github.com/jcmturner/gokrb5/v8 v8.2.0 // indirect
 	github.com/jcmturner/rpc/v2 v2.0.2 // indirect
+	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/mattn/go-sqlite3 v1.14.9 // indirect
+	github.com/rs/cors v1.8.0 // indirect
 	golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4 // indirect
 	golang.org/x/net v0.0.0-20200506145744-7e3656a0809f // indirect
 	google.golang.org/protobuf v1.23.0 // indirect
