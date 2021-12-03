@@ -15,10 +15,7 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("error loading .env file")
-	}
+	godotenv.Load()
 
 	address := os.Getenv("ADDRESS")
 	if address == "" {
@@ -40,7 +37,7 @@ func main() {
 		log.Println("database URL not defined")
 	}
 
-	err = database.Initialize(dbURL)
+	err := database.Initialize(dbURL)
 	if err != nil {
 		log.Fatalln(err)
 	}
