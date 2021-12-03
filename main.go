@@ -58,6 +58,9 @@ func main() {
 	router.Use(middleware.Logger)
 	router.Use(middleware.AllowContentEncoding("application/json"))
 
+	spa := server.NewSpaHandler("ui/dist/spa", "index.html")
+	router.PathPrefix("/").Handler(spa)
+
 	var handler http.Handler
 	if corsEnable {
 		c := cors.New(cors.Options{
@@ -70,7 +73,7 @@ func main() {
 		handler = router
 	}
 
-	log.Printf("Listening on %v:%v", address, port)
+	log.Printf("Listening on http://%v:%v", address, port)
 
 	srv := &http.Server{
 		Handler:      handler,
