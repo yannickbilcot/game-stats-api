@@ -17,7 +17,7 @@ import (
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalln("error loading .env file")
+		log.Println("error loading .env file")
 	}
 
 	address := os.Getenv("ADDRESS")
