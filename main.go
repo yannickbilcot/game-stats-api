@@ -18,9 +18,7 @@ func main() {
 	godotenv.Load()
 
 	address := os.Getenv("ADDRESS")
-	if address == "" {
-		address = "127.0.0.1"
-	}
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "3000"
