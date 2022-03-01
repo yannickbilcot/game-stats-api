@@ -14,6 +14,17 @@ import (
 	"github.com/joho/godotenv"
 )
 
+func forceSsl(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("x-forwarded-proto") != "https" {
+			sslUrl := "https://" + r.Host + r.RequestURI
+			http.Redirect(w, r, sslUrl, http.StatusTemporaryRedirect)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	godotenv.Load()
 
@@ -46,14 +57,14 @@ func main() {
 	spa := server.NewSpaHandler("ui/dist/spa", "index.html")
 	router.PathPrefix("/").Handler(spa)
 
-	allowedHeaders := handlers.AllowedHeaders([]string{"X-Requested-With","content-type"})
+	allowedHeaders := handlers.AllowedHeaders([]string{"X-Requested-With", "content-type"})
 	allowedOrigins := handlers.AllowedOrigins([]string{"*"})
 	allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "OPTIONS"})
 
 	log.Printf("Listening on %v:%v", address, port)
 
 	srv := &http.Server{
-		Handler:      handlers.CORS(allowedOrigins, allowedHeaders, allowedMethods)(router),
+		Handler:      handlers.CORS(allowedOrigins, allowedHeaders, allowedMethods)(forceSsl(router)),
 		Addr:         address + ":" + port,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
