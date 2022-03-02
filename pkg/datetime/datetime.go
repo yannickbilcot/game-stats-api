@@ -3,7 +3,7 @@ package datetime
 import "time"
 
 type DateTime struct {
-	Date *time.Time `db:"player_stat" json:"date,omitempty"`
+	Date *time.Time `db:"player_stat" json:"date,omitempty" example:"2021-08-12T16:28:56Z"`
 }
 
 func New(date time.Time) DateTime {

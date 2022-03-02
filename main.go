@@ -8,12 +8,20 @@ import (
 	"os"
 	"time"
 
+	_ "game-stats-api/docs"
+
 	"github.com/go-chi/chi/middleware"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
+// @Title Game Stats API
+// @Version 1.0
+// @License.name MIT
+// @License.url https://opensource.org/licenses/MIT
+// @BasePath /api/v1
 func main() {
 	godotenv.Load()
 
@@ -45,10 +53,12 @@ func main() {
 	router.Use(middleware.Logger)
 	router.Use(middleware.AllowContentEncoding("application/json"))
 
+	router.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
+
 	spa := server.NewSpaHandler("ui/dist/spa", "index.html")
 	router.PathPrefix("/").Handler(spa)
 
-	allowedHeaders := handlers.AllowedHeaders([]string{"X-Requested-With","content-type"})
+	allowedHeaders := handlers.AllowedHeaders([]string{"X-Requested-With", "content-type"})
 	allowedOrigins := handlers.AllowedOrigins([]string{"*"})
 	allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "OPTIONS"})
 

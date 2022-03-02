@@ -7,9 +7,9 @@ import (
 	"game-stats-api/pkg/game"
 	"game-stats-api/pkg/player"
 	"net/http"
-	"strconv"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -54,11 +54,27 @@ func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.FileServer(http.Dir(h.staticPath)).ServeHTTP(w, r)
 }
 
+// @Summary Get all games
+// @Description Retrieve the data for all the games.
+// @Tags List
+// @ID get-all-games
+// @Produce json
+// @Success 200 {array} game.Game
+// @Router /games [get]
 func GetAllGamesHandler(w http.ResponseWriter, req *http.Request) {
 	allGames := database.GetAllGames()
 	renderJSON(w, allGames)
 }
 
+// @Summary Get a game by ID
+// @Description Return the data for a single game.
+// @Tags List
+// @ID get-game-by-id
+// @Produce json
+// @Param id path int true "game ID"
+// @Success 200 {object} game.Game
+// @Failure 404 {string} string
+// @Router /games/{id} [get]
 func GetGameHandler(w http.ResponseWriter, req *http.Request) {
 	id, _ := strconv.Atoi(mux.Vars(req)["id"])
 	game, err := database.GetGame(id)
@@ -69,6 +85,17 @@ func GetGameHandler(w http.ResponseWriter, req *http.Request) {
 	renderJSON(w, game)
 }
 
+// @Summary Create a new game
+// @Description Create a new game with a specific Name and Description.
+// @Description The id parameter is not needed (automatically created).
+// @Tags Create
+// @ID create-game
+// @Accept json
+// @Param body-json-param body game.Game true "game"
+// @Produce json
+// @Success 200 {object} object
+// @Failure 400 {object} string
+// @Router /games/ [post]
 func CreateGameHandler(w http.ResponseWriter, req *http.Request) {
 	dec := json.NewDecoder(req.Body)
 	dec.DisallowUnknownFields()
@@ -87,6 +114,15 @@ func CreateGameHandler(w http.ResponseWriter, req *http.Request) {
 	renderJSON(w, map[string]int{"id": id})
 }
 
+// @Summary Delete a game by ID
+// @Description Delete a game with a specific ID.
+// @Tags Delete
+// @ID delete-game
+// @Produce json
+// @Param id path int true "game ID"
+// @Success 200
+// @Failure 404 {string} string
+// @Router /games/{id} [delete]
 func DeleteGameHandler(w http.ResponseWriter, req *http.Request) {
 	id, _ := strconv.Atoi(mux.Vars(req)["id"])
 	err := database.DeleteGame(id)
@@ -95,6 +131,20 @@ func DeleteGameHandler(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+// @Summary Create a game player
+// @Description Add a new player for a specific game.
+// @Description The player name should be unique.
+// @Description The id parameter is not needed (automatically created).
+// @Tags Create
+// @ID create-game-player
+// @Param id path int true "game ID"
+// @Accept json
+// @Param body-json-param body player.Player true "player"
+// @Produce json
+// @Success 200 {object} object
+// @Failure 400 {object} string
+// @Failure 404 {object} string
+// @Router /games/{id}/players/ [post]
 func CreateGamePlayerHandler(w http.ResponseWriter, req *http.Request) {
 	id, _ := strconv.Atoi(mux.Vars(req)["id"])
 	game, err := database.GetGame(id)
@@ -126,6 +176,17 @@ func CreateGamePlayerHandler(w http.ResponseWriter, req *http.Request) {
 	renderJSON(w, map[string]int{"id": id})
 }
 
+// @Summary Delete a game player
+// @Description Delete a player for a specific game.
+// @Tags Delete
+// @ID delete-game-player
+// @Param gid path int true "game ID"
+// @Param pid path int true "player ID"
+// @Accept json
+// @Produce json
+// @Success 200
+// @Failure 404 {object} string
+// @Router /games/{gid}/players/{pid} [delete]
 func DeleteGamePlayerHandler(w http.ResponseWriter, req *http.Request) {
 	gid, _ := strconv.Atoi(mux.Vars(req)["gid"])
 	game, err := database.GetGame(gid)
@@ -145,6 +206,19 @@ func DeleteGamePlayerHandler(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+// @Summary Add a game win to a player
+// @Description Add a game win to a player at the chosen date and time.
+// @Tags Create
+// @ID add-game-player-win
+// @Param gid path int true "game ID"
+// @Param pid path int true "player ID"
+// @Accept json
+// @Param body-json-param body datetime.DateTime true "date and time"
+// @Produce json
+// @Success 200
+// @Failure 400 {object} string
+// @Failure 404 {object} string
+// @Router /games/{gid}/players/{pid}/stats/ [post]
 func AddGamePlayerStatHandler(w http.ResponseWriter, req *http.Request) {
 	gid, _ := strconv.Atoi(mux.Vars(req)["gid"])
 	game, err := database.GetGame(gid)
@@ -181,6 +255,17 @@ func AddGamePlayerStatHandler(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+// @Summary Delete the latest game win to a player
+// @Description The most recent "game win" for a specific player will be deleted.
+// @Tags Delete
+// @ID delete-game-player-latest-win
+// @Param gid path int true "game ID"
+// @Param pid path int true "player ID"
+// @Produce json
+// @Success 200
+// @Failure 400 {object} string
+// @Failure 404 {object} string
+// @Router /games/{gid}/players/{pid}/laststat/ [delete]
 func DeleteGamePlayerLastStatHandler(w http.ResponseWriter, req *http.Request) {
 	gid, _ := strconv.Atoi(mux.Vars(req)["gid"])
 	game, err := database.GetGame(gid)
