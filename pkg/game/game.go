@@ -6,9 +6,9 @@ import (
 )
 
 type Game struct {
-	Id          int              `db:"game_id" json:"id"`
-	Name        string           `db:"game_name" json:"name"`
-	Description string           `db:"game_description" json:"description"`
+	Id          int              `db:"game_id" json:"id" example:"1"`
+	Name        string           `db:"game_name" json:"name" example:"Monopoly"`
+	Description string           `db:"game_description" json:"description" example:"a famous board game"`
 	Players     []*player.Player `json:"players,omitempty"`
 }
 

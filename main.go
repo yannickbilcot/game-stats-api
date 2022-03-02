@@ -8,10 +8,13 @@ import (
 	"os"
 	"time"
 
+	_ "game-stats-api/docs"
+
 	"github.com/go-chi/chi/middleware"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func forceSsl(next http.Handler) http.Handler {
@@ -25,6 +28,11 @@ func forceSsl(next http.Handler) http.Handler {
 	})
 }
 
+// @Title Game Stats API
+// @Version 1.0
+// @License.name MIT
+// @License.url https://opensource.org/licenses/MIT
+// @BasePath /api/v1
 func main() {
 	godotenv.Load()
 
@@ -53,6 +61,8 @@ func main() {
 	router.HandleFunc("/api/v1/games/{gid:[0-9]+}/players/{pid:[0-9]+}/laststat/", server.DeleteGamePlayerLastStatHandler).Methods("DELETE")
 	router.Use(middleware.Logger)
 	router.Use(middleware.AllowContentEncoding("application/json"))
+
+	router.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
 	spa := server.NewSpaHandler("ui/dist/spa", "index.html")
 	router.PathPrefix("/").Handler(spa)

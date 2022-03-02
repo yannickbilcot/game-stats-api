@@ -6,8 +6,8 @@ import (
 )
 
 type Player struct {
-	Id    *int                 `db:"player_id" json:"id,omitempty"`
-	Name  *string              `db:"player_name" json:"name,omitempty"`
+	Id    *int                 `db:"player_id" json:"id,omitempty" example:"1"`
+	Name  *string              `db:"player_name" json:"name,omitempty" example:"Jack"`
 	Stats []*datetime.DateTime `json:"stats,omitempty"`
 }
 
