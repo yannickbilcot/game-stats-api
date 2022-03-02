@@ -1,0 +1,6 @@
+#!/bin/bash
+set -e
+
+go get -u github.com/swaggo/swag/cmd/swag
+./bin/swag init
+
