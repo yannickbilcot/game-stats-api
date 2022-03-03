@@ -9,7 +9,7 @@ Can serve a SPA UI frontend in addition:
 * [game-stats-vue](https://github.com/yannickbilcot/game-stats-vue)
 
 
-# Installation and Run
+## Installation and Run
 
 #### Download the project
 
