@@ -31,6 +31,8 @@ quasar build
 ```
 
 #### To generate the swagger documentation (optional)
+* API documentation:  https://game-stats-demo.herokuapp.com/swagger/
+
 ```bash
 go get -u github.com/swaggo/swag/cmd/swag
 swag init
