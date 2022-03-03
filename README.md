@@ -2,10 +2,11 @@
 
 A simple REST API server in Go using:
 * SQLite Database
-* gorilla/mux Router
+* gorilla/mux router
 * swaggo/swag API documentation
 
-Can serve a SPA UI frontend in addition ([game-stats-vue](https://github.com/yannickbilcot/game-stats-vue))
+Can serve a SPA UI frontend in addition:
+* [game-stats-vue](https://github.com/yannickbilcot/game-stats-vue)
 
 
 # Installation and Run
@@ -18,7 +19,7 @@ cd game-stats-api
 ```
 
 #### To serve the UI frontend (optional)
-* UI source code [game-stats-vue](https://github.com/yannickbilcot/game-stats-vue)
+* UI demo:  https://game-stats-demo.herokuapp.com/
 
 ```bash
 # fetch the ui submodule
